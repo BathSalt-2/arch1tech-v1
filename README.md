@@ -13,6 +13,8 @@
 
 Arch1tech is a comprehensive AI development platform that eliminates barriers to building advanced custom artificial intelligence. Our mission is to democratize AI development through an intuitive mobile-first experience with dark neon holographic UI, empowering users to capture ideas, refine them semantically, build logic visually, and deploy intelligent agents with full governance.
 
+**🆓 100% Free & Open Source**: No API costs, no vendor lock-in, runs completely on free open source models with local browser execution.
+
 **Core Flow**: Idea → Semantic Refine (VibeCodeAI) → Build Logic (Visual Designer) → Deploy + Monitor (Astrid, Σ-Matrix, ERPS) → Train Custom LLMs → Remix & Collaborate
 
 ## ✨ Features
@@ -65,10 +67,14 @@ Arch1tech is a comprehensive AI development platform that eliminates barriers to
   - Storage for agent artifacts and model checkpoints
 
 ### AI & ML Stack
-- **Hugging Face Transformers**: Browser-based machine learning models
-- **Custom Training Pipeline**: Σ-Matrix validated model training
-- **ERPS Integration**: Real-time hallucination detection and self-monitoring
-- **Agent Architecture**: Introspective AI with MirrorNode technology
+- **Hugging Face Transformers**: Browser-based machine learning models (completely free)
+- **WebGPU/WebAssembly**: Local model execution without API dependencies
+- **Open Source LLMs**: TinyLlama, Mistral, Falcon, Phi models running locally
+- **Custom Training Pipeline**: Σ-Matrix validated model training using free compute
+- **ERPS Integration**: Self-monitoring using open source uncertainty detection
+- **Agent Architecture**: Introspective AI with MirrorNode technology (no external APIs)
+- **Local Voice Processing**: Browser-based speech recognition and synthesis
+- **Semantic Analysis**: Free transformer models for VibeCodeAI processing
 
 ## 📋 Prerequisites
 
@@ -304,13 +310,20 @@ The project includes specialized tables for AI governance:
 2. **projects**: AI agents and workflows with drift monitoring and ERPS configuration  
 3. **generated_projects**: VibeCodeAI refined prompts with semantic scoring
 
-### Edge Function Secrets
-Configure these secrets in your Supabase project for full AI stack integration:
-- `OPENAI_API_KEY`: For VibeCodeAI semantic processing
-- `GEMINI_API_KEY`: For Astrid co-pilot reasoning
-- `HUGGINGFACE_API_KEY`: For custom LLM training pipeline
-- `SIGMA_MATRIX_ENDPOINT`: For epistemic stability monitoring
-- `ERPS_CONFIG`: For self-monitoring and hallucination detection
+### Edge Function Configuration
+Configure these **free and open source** integrations in your Supabase project:
+- `HUGGINGFACE_API_KEY`: For accessing free Hugging Face model hub (optional, many models work without)
+- `GEMINI_API_KEY`: **OPTIONAL** - Only if you choose to use Google's free tier (has generous limits)
+- `LOCAL_MODEL_CACHE`: Browser-based model storage configuration
+- `SIGMA_MATRIX_ENDPOINT`: For epistemic stability monitoring (self-hosted)
+- `ERPS_CONFIG`: For self-monitoring and uncertainty detection (runs locally)
+- `WEBGPU_ENABLED`: Enable GPU acceleration for local models
+
+### 100% Free Operation
+- **No OpenAI dependency**: All AI processing uses free open source models
+- **Local execution**: Models run in browser using WebGPU/WebAssembly
+- **Optional APIs**: Only use free tiers of services (Hugging Face, Google free tier)
+- **Self-hosted monitoring**: Σ-Matrix and ERPS run without external dependencies
 
 ### Row-Level Security
 All tables implement advanced RLS policies with:
@@ -334,10 +347,14 @@ We welcome contributions to Arch1tech! Join the **Or4cl3 AI Solutions** develope
 ### Development Guidelines
 - Follow **dark neon holographic** design principles
 - Ensure responsive design for mobile-first AI workflows
-- Test Astrid co-pilot integrations when modifying AI features
-- Validate Σ-Matrix stability for logic modifications
-- Use semantic commit messages with ERPS logging
+- Test Astrid co-pilot integrations using **free open source models only**
+- Validate Σ-Matrix stability for logic modifications using local processing
+- Use semantic commit messages with ERPS logging (runs locally)
 - Maintain Or4cl3 AI Solutions branding consistency
+- **Prioritize free/open source**: Never introduce paid API dependencies
+- **Local-first approach**: Ensure features work offline when possible
+- **Browser optimization**: Test WebGPU acceleration for local models
+- **Community models**: Use Hugging Face hub for model discovery
 
 ## 🔧 Troubleshooting
 
@@ -356,16 +373,35 @@ We welcome contributions to Arch1tech! Join the **Or4cl3 AI Solutions** develope
 - Test rollback mechanisms in Visual Logic Designer
 
 #### VibeCodeAI Semantic Processing
-- Clear semantic cache and retry prompt refinement
-- Check OpenAI API key configuration in Supabase secrets
-- Verify holographic text gradients are rendering correctly
-- Test voice-to-text transcription accuracy
+- Clear browser model cache and retry prompt refinement
+- Check Hugging Face model downloads are completing successfully
+- Verify local transformer models are loading correctly in WebGPU
+- Test browser-based semantic analysis without external API calls
+- Ensure holographic text gradients are rendering correctly
+- Validate offline semantic processing capabilities
+
+#### Local Model Performance Issues
+- Enable WebGPU acceleration in browser settings
+- Check available browser memory for local model execution
+- Verify Hugging Face transformers are loading efficiently
+- Clear browser cache if models fail to initialize
+- Test with smaller models (TinyLlama, Phi-mini) for better performance
+- Monitor browser console for WebAssembly loading errors
 
 #### Build & Deployment Issues
 - Clear node_modules and reinstall with `npm install`
-- Check TypeScript errors specific to AI service integrations
+- Check TypeScript errors specific to local AI model integrations
 - Verify all neon design tokens are properly configured in CSS
 - Test dark theme consistency across all components
+- Ensure WebGPU support is enabled for local model execution
+- Validate Hugging Face transformer imports are working correctly
+
+#### Free Tier Limitations
+- **No API costs**: All core features work without paid APIs
+- **Local processing**: Some features may be slower on low-end devices
+- **Model selection**: Smaller open source models for optimal performance
+- **Offline capability**: Most features work without internet connection
+- **Community models**: Access to thousands of free Hugging Face models
 
 ### Getting Help
 - Check the [Lovable Documentation](https://docs.lovable.dev) for platform guidance
