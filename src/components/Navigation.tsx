@@ -8,7 +8,8 @@ import {
   Database,
   ShoppingBag,
   Settings,
-  LogOut
+  LogOut,
+  Rocket
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -25,6 +26,7 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
     { id: 'capture', icon: Lightbulb, label: 'Capture' },
     { id: 'vibe', icon: Brain, label: 'VibeAI' },
     { id: 'logic', icon: Workflow, label: 'Logic' },
+    { id: 'deploy', icon: Rocket, label: 'Deploy' },
     { id: 'marketplace', icon: ShoppingBag, label: 'Market' },
     { id: 'custom-llm', icon: Database, label: 'LLM' },
     { id: 'astrid', icon: Bot, label: 'Astrid' },
@@ -49,7 +51,21 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
           ))}
         </div>
         <div className="grid grid-cols-4 gap-3 mt-3">
-          {navItems.slice(4, 7).map((item) => (
+          {navItems.slice(4, 8).map((item) => (
+            <Button
+              key={item.id}
+              variant={currentView === item.id ? "neon" : "ghost"}
+              size="sm"
+              className="flex-col touch-target p-3 touch-feedback"
+              onClick={() => onViewChange(item.id)}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-xs mt-1">{item.label}</span>
+            </Button>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          {navItems.slice(8, 9).map((item) => (
             <Button
               key={item.id}
               variant={currentView === item.id ? "neon" : "ghost"}

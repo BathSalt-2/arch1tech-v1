@@ -7,6 +7,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { IdeaCapture } from "@/components/IdeaCapture";
 import { VibeCodeAI } from "@/components/VibeCodeAI";
 import { VisualLogicDesigner } from "@/components/VisualLogicDesigner";
+import ProjectDeployment from "@/components/ProjectDeployment";
 import { AIMarketplace } from "@/components/AIMarketplace";
 import { CustomLLMBuilder } from "@/components/CustomLLMBuilder";
 import { Astrid } from "@/components/Astrid";
@@ -41,6 +42,8 @@ const Index = () => {
         return <VibeCodeAI />;
       case 'logic':
         return <VisualLogicDesigner />;
+      case 'deploy':
+        return <ProjectDeployment />;
       case 'marketplace':
         return <AIMarketplace />;
       case 'custom-llm':
