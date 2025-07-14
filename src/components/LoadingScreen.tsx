@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Loader2
 } from "lucide-react";
+import arch1techLogo from "@/assets/arch1tech-logo.png";
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -91,11 +92,15 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         <Card className="border-primary/20 bg-card/80 backdrop-blur-sm shadow-2xl">
           <div className="p-8 text-center">
             {/* Logo */}
-            <div className="w-20 h-20 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-              <Rocket className="h-10 w-10 text-white" />
+            <div className="w-20 h-20 mx-auto mb-6 pulse-cyan">
+              <img 
+                src={arch1techLogo} 
+                alt="Arch1tech Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
 
-            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold mb-2 text-gradient-neural">
               Arch1tech
             </h1>
             <p className="text-muted-foreground mb-8">

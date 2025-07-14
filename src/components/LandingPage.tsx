@@ -16,6 +16,7 @@ import {
   Globe,
   Star
 } from "lucide-react";
+import arch1techLogo from "@/assets/arch1tech-logo.png";
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -68,11 +69,13 @@ export const LandingPage = ({ onEnter }: LandingPageProps) => {
       <div className="relative z-10 container mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <img 
+              src={arch1techLogo} 
+              alt="Arch1tech Logo" 
+              className="h-16 w-16 object-contain"
+            />
+            <h1 className="text-4xl md:text-6xl font-bold text-gradient-neural">
               Arch1tech
             </h1>
           </div>

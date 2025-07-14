@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import arch1techLogo from "@/assets/arch1tech-logo.png";
 
 interface SplashProps {
   onComplete: () => void;
@@ -64,18 +65,18 @@ export function Splash({ onComplete }: SplashProps) {
             {/* Logo image */}
             <div className="absolute inset-2 flex items-center justify-center">
               <img 
-                src="/lovable-uploads/2847dc9a-ab97-43f4-9a79-76669cf0e548.png" 
-                alt="Or4cl3 AI Solutions Logo" 
-                className="w-36 h-36 rounded-full neon-glow-cyan"
+                src={arch1techLogo} 
+                alt="Arch1tech Logo" 
+                className="w-32 h-32 object-contain neon-glow-cyan"
               />
             </div>
           </div>
 
         {/* Brand text */}
         <div className="text-center space-y-3">
-          <h1 className="text-5xl font-bold text-gradient-neural bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple bg-clip-text text-transparent">Arch1tech</h1>
-          <p className="text-muted-foreground text-lg font-medium">Powered by Or4cl3 AI Solutions</p>
-          <p className="text-sm text-neon-pink italic font-light tracking-wide">Build the future, one thought at a time.</p>
+          <h1 className="text-5xl font-bold text-gradient-neural">Arch1tech</h1>
+          <p className="text-muted-foreground text-lg font-medium">AI-Powered Development Platform</p>
+          <p className="text-sm text-accent italic font-light tracking-wide">Build the future, one thought at a time.</p>
         </div>
 
         {/* Loading indicator */}
