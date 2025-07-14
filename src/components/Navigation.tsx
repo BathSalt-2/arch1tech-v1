@@ -7,8 +7,10 @@ import {
   Bot, 
   Database,
   ShoppingBag,
-  Settings
+  Settings,
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavigationProps {
   currentView: string;
@@ -16,6 +18,8 @@ interface NavigationProps {
 }
 
 export function Navigation({ currentView, onViewChange }: NavigationProps) {
+  const { signOut } = useAuth();
+  
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'capture', icon: Lightbulb, label: 'Capture' },
@@ -45,7 +49,7 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
           ))}
         </div>
         <div className="grid grid-cols-4 gap-2 mt-2">
-          {navItems.slice(4).map((item) => (
+          {navItems.slice(4, 7).map((item) => (
             <Button
               key={item.id}
               variant={currentView === item.id ? "neon" : "ghost"}
@@ -57,6 +61,15 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
               <span className="text-xs">{item.label}</span>
             </Button>
           ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex-col h-12 p-2 text-destructive hover:text-destructive"
+            onClick={signOut}
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-xs">Sign Out</span>
+          </Button>
         </div>
       </div>
     </div>

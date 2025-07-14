@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Splash } from "@/components/Splash";
 import { Dashboard } from "@/components/Dashboard";
 import { IdeaCapture } from "@/components/IdeaCapture";
@@ -10,10 +11,21 @@ import { Astrid } from "@/components/Astrid";
 import { Settings } from "@/components/Settings";
 import { Navigation } from "@/components/Navigation";
 import { AIInitializer } from "@/components/AIInitializer";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentView, setCurrentView] = useState('dashboard');
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -37,6 +49,20 @@ const Index = () => {
         return <Dashboard onViewChange={setCurrentView} />;
     }
   };
+
+  // Show loading spinner while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render anything if user is not logged in (will redirect)
+  if (!user) {
+    return null;
+  }
 
   if (showSplash) {
     return <Splash onComplete={() => setShowSplash(false)} />;
