@@ -6,6 +6,8 @@ import { VibeCodeAI } from "@/components/VibeCodeAI";
 import { VisualLogicDesigner } from "@/components/VisualLogicDesigner";
 import { AIMarketplace } from "@/components/AIMarketplace";
 import { CustomLLMBuilder } from "@/components/CustomLLMBuilder";
+import { Astrid } from "@/components/Astrid";
+import { Settings } from "@/components/Settings";
 import { Navigation } from "@/components/Navigation";
 import { AIInitializer } from "@/components/AIInitializer";
 
@@ -28,9 +30,9 @@ const Index = () => {
       case 'custom-llm':
         return <CustomLLMBuilder />;
       case 'astrid':
-        return <Dashboard onViewChange={setCurrentView} />; // Placeholder for now
+        return <Astrid />;
       case 'settings':
-        return <Dashboard onViewChange={setCurrentView} />; // Placeholder for now
+        return <Settings />;
       default:
         return <Dashboard onViewChange={setCurrentView} />;
     }
