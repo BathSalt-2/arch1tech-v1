@@ -32,43 +32,43 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 mobile-safe-area">
       <div className="max-w-md mx-auto">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-3">
           {navItems.slice(0, 4).map((item) => (
             <Button
               key={item.id}
               variant={currentView === item.id ? "neon" : "ghost"}
               size="sm"
-              className="flex-col h-12 p-2"
+              className="flex-col touch-target p-3 touch-feedback"
               onClick={() => onViewChange(item.id)}
             >
-              <item.icon className="w-4 h-4" />
-              <span className="text-xs">{item.label}</span>
+              <item.icon className="w-5 h-5" />
+              <span className="text-xs mt-1">{item.label}</span>
             </Button>
           ))}
         </div>
-        <div className="grid grid-cols-4 gap-2 mt-2">
+        <div className="grid grid-cols-4 gap-3 mt-3">
           {navItems.slice(4, 7).map((item) => (
             <Button
               key={item.id}
               variant={currentView === item.id ? "neon" : "ghost"}
               size="sm"
-              className="flex-col h-12 p-2"
+              className="flex-col touch-target p-3 touch-feedback"
               onClick={() => onViewChange(item.id)}
             >
-              <item.icon className="w-4 h-4" />
-              <span className="text-xs">{item.label}</span>
+              <item.icon className="w-5 h-5" />
+              <span className="text-xs mt-1">{item.label}</span>
             </Button>
           ))}
           <Button
             variant="ghost"
             size="sm"
-            className="flex-col h-12 p-2 text-destructive hover:text-destructive"
+            className="flex-col touch-target p-3 text-destructive hover:text-destructive touch-feedback"
             onClick={signOut}
           >
-            <LogOut className="w-4 h-4" />
-            <span className="text-xs">Sign Out</span>
+            <LogOut className="w-5 h-5" />
+            <span className="text-xs mt-1">Sign Out</span>
           </Button>
         </div>
       </div>

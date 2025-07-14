@@ -18,20 +18,20 @@ interface DashboardProps {
 
 export function Dashboard({ onViewChange }: DashboardProps) {
   return (
-    <div className="min-h-screen p-4 space-y-6">
+    <div className="min-h-screen mobile-p-4 tablet-p-6 desktop-p-8 space-y-6 pb-32 mobile-safe-area">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gradient-neon">Command Center</h1>
-          <p className="text-muted-foreground">Hey Alex, Astrid's ready.</p>
+        <div className="flex-1">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient-neon">Command Center</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Hey Alex, Astrid's ready.</p>
         </div>
-        <div className="w-12 h-12 bg-gradient-to-br from-neon-cyan to-neon-purple rounded-full flex items-center justify-center neon-glow-cyan">
-          <span className="text-midnight-blue font-bold text-lg">Ω</span>
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-neon-cyan to-neon-purple rounded-full flex items-center justify-center neon-glow-cyan flex-shrink-0">
+          <span className="text-midnight-blue font-bold text-lg sm:text-xl">Ω</span>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="holographic-border">
           <div className="holographic-content p-4 space-y-2">
             <div className="flex items-center space-x-2">
@@ -113,38 +113,38 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       </Card>
 
       {/* Main Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <Button 
           variant="neon" 
-          className="h-20 flex-col space-y-2"
+          className="touch-target h-20 sm:h-24 flex-col space-y-2 touch-feedback"
           onClick={() => onViewChange?.('capture')}
         >
-          <Plus className="w-6 h-6" />
-          <span>New Build</span>
+          <Plus className="w-6 h-6 sm:w-7 sm:h-7" />
+          <span className="text-sm sm:text-base">New Build</span>
         </Button>
         <Button 
           variant="holographic" 
-          className="h-20 flex-col space-y-2"
+          className="touch-target h-20 sm:h-24 flex-col space-y-2 touch-feedback"
           onClick={() => onViewChange?.('custom-llm')}
         >
-          <Brain className="w-6 h-6" />
-          <span>Custom LLM</span>
+          <Brain className="w-6 h-6 sm:w-7 sm:h-7" />
+          <span className="text-sm sm:text-base">Custom LLM</span>
         </Button>
         <Button 
           variant="pulse" 
-          className="h-20 flex-col space-y-2"
+          className="touch-target h-20 sm:h-24 flex-col space-y-2 touch-feedback"
           onClick={() => onViewChange?.('marketplace')}
         >
-          <Database className="w-6 h-6" />
-          <span>Marketplace</span>
+          <Database className="w-6 h-6 sm:w-7 sm:h-7" />
+          <span className="text-sm sm:text-base">Marketplace</span>
         </Button>
         <Button 
           variant="secondary" 
-          className="h-20 flex-col space-y-2"
+          className="touch-target h-20 sm:h-24 flex-col space-y-2 touch-feedback"
           onClick={() => onViewChange?.('logic')}
         >
-          <Code2 className="w-6 h-6" />
-          <span>Σ-Matrix</span>
+          <Code2 className="w-6 h-6 sm:w-7 sm:h-7" />
+          <span className="text-sm sm:text-base">Σ-Matrix</span>
         </Button>
       </div>
     </div>

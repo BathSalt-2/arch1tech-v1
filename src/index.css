@@ -66,7 +66,14 @@ All colors MUST be HSL.
     
     /* Animations */
     --transition-glow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-touch: all 0.15s ease-out;
     --pulse-duration: 2s;
+    
+    /* Mobile Touch Optimizations */
+    --touch-target-min: 44px;
+    --mobile-padding: 1rem;
+    --tablet-padding: 1.5rem;
+    --desktop-padding: 2rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -206,6 +213,61 @@ All colors MUST be HSL.
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+  
+  .text-gradient-neon {
+    background: var(--gradient-neural);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Mobile Touch Optimizations */
+  .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Mobile-specific responsive utilities */
+  @media (max-width: 640px) {
+    .mobile-p-4 {
+      padding: var(--mobile-padding);
+    }
+    
+    .mobile-safe-area {
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: env(safe-area-inset-top);
+    }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-p-6 {
+      padding: var(--tablet-padding);
+    }
+  }
+  
+  @media (min-width: 1025px) {
+    .desktop-p-8 {
+      padding: var(--desktop-padding);
+    }
+  }
+  
+  /* Touch feedback effects */
+  .touch-feedback {
+    transition: var(--transition-touch);
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+  
+  /* PWA optimizations */
+  @media (display-mode: standalone) {
+    .pwa-safe-area {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 
