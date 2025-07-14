@@ -21,9 +21,9 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
     { id: 'capture', icon: Lightbulb, label: 'Capture' },
     { id: 'vibe', icon: Brain, label: 'VibeAI' },
     { id: 'logic', icon: Workflow, label: 'Logic' },
-    { id: 'astrid', icon: Bot, label: 'Astrid' },
-    { id: 'llm', icon: Database, label: 'LLM' },
     { id: 'marketplace', icon: ShoppingBag, label: 'Market' },
+    { id: 'custom-llm', icon: Database, label: 'LLM' },
+    { id: 'astrid', icon: Bot, label: 'Astrid' },
     { id: 'settings', icon: Settings, label: 'Settings' },
   ];
 

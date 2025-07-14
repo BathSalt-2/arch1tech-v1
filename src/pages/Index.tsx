@@ -16,7 +16,7 @@ const Index = () => {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onViewChange={setCurrentView} />;
       case 'capture':
         return <IdeaCapture />;
       case 'vibe':
@@ -27,8 +27,12 @@ const Index = () => {
         return <AIMarketplace />;
       case 'custom-llm':
         return <CustomLLMBuilder />;
+      case 'astrid':
+        return <Dashboard onViewChange={setCurrentView} />; // Placeholder for now
+      case 'settings':
+        return <Dashboard onViewChange={setCurrentView} />; // Placeholder for now
       default:
-        return <Dashboard />;
+        return <Dashboard onViewChange={setCurrentView} />;
     }
   };
 

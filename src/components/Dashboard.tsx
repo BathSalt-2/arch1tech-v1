@@ -12,7 +12,11 @@ import {
   Code2
 } from "lucide-react";
 
-export function Dashboard() {
+interface DashboardProps {
+  onViewChange?: (view: string) => void;
+}
+
+export function Dashboard({ onViewChange }: DashboardProps) {
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
@@ -110,19 +114,35 @@ export function Dashboard() {
 
       {/* Main Actions */}
       <div className="grid grid-cols-2 gap-4">
-        <Button variant="neon" className="h-20 flex-col space-y-2">
+        <Button 
+          variant="neon" 
+          className="h-20 flex-col space-y-2"
+          onClick={() => onViewChange?.('capture')}
+        >
           <Plus className="w-6 h-6" />
           <span>New Build</span>
         </Button>
-        <Button variant="holographic" className="h-20 flex-col space-y-2">
+        <Button 
+          variant="holographic" 
+          className="h-20 flex-col space-y-2"
+          onClick={() => onViewChange?.('custom-llm')}
+        >
           <Brain className="w-6 h-6" />
           <span>Custom LLM</span>
         </Button>
-        <Button variant="pulse" className="h-20 flex-col space-y-2">
+        <Button 
+          variant="pulse" 
+          className="h-20 flex-col space-y-2"
+          onClick={() => onViewChange?.('marketplace')}
+        >
           <Database className="w-6 h-6" />
           <span>Marketplace</span>
         </Button>
-        <Button variant="secondary" className="h-20 flex-col space-y-2">
+        <Button 
+          variant="secondary" 
+          className="h-20 flex-col space-y-2"
+          onClick={() => onViewChange?.('logic')}
+        >
           <Code2 className="w-6 h-6" />
           <span>Σ-Matrix</span>
         </Button>
