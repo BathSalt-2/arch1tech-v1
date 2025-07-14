@@ -64,6 +64,7 @@ export default {
 				},
 				// Arch1tech Custom Colors - Enhanced Cosmic Theme
 				'neon-cyan': 'hsl(var(--neon-cyan))',
+				'neon-green': 'hsl(var(--neon-green))',
 				'neon-blue': 'hsl(var(--neon-blue))',
 				'neon-purple': 'hsl(var(--neon-purple))',
 				'neon-pink': 'hsl(var(--neon-pink))',

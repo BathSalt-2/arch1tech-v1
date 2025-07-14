@@ -88,22 +88,25 @@ const Auth = () => {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center space-x-2">
-            <Brain className="h-8 w-8 text-primary" />
-            <Sparkles className="h-6 w-6 text-primary/70" />
+            <img src="/lovable-uploads/2847dc9a-ab97-43f4-9a79-76669cf0e548.png" alt="Or4cl3 AI Solutions" className="h-12 w-12 rounded-full" />
           </div>
-          <h1 className="text-2xl font-bold">AppMaster AI</h1>
+          <h1 className="text-2xl font-bold text-gradient-neural">Arch1tech</h1>
           <p className="text-muted-foreground">
-            Eliminate barriers to building advanced custom AI
+            Powered by <span className="text-neon-cyan font-semibold">Or4cl3 AI Solutions</span>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Build the future, one thought at a time
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-card/95 border-border/50">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome</CardTitle>
-            <CardDescription className="text-center">
-              Sign in to your account or create a new one
-            </CardDescription>
-          </CardHeader>
+        <Card className="backdrop-blur-sm bg-card/95 border-neon-cyan/20 holographic-border">
+          <div className="holographic-content">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl text-center text-gradient-cosmic">Welcome to Arch1tech</CardTitle>
+              <CardDescription className="text-center">
+                Sign in to your account or create a new one
+              </CardDescription>
+            </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
@@ -141,7 +144,7 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full neon-glow-cyan" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign In
                   </Button>
@@ -183,14 +186,15 @@ const Auth = () => {
                       minLength={6}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full neon-glow-purple" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Account
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
-          </CardContent>
+            </CardContent>
+          </div>
         </Card>
       </div>
     </div>

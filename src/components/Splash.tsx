@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import logoImage from "../assets/arch1tech-logo.png";
 
 interface SplashProps {
   onComplete: () => void;
@@ -65,8 +64,8 @@ export function Splash({ onComplete }: SplashProps) {
             {/* Logo image */}
             <div className="absolute inset-2 flex items-center justify-center">
               <img 
-                src={logoImage} 
-                alt="Arch1tech Logo" 
+                src="/lovable-uploads/2847dc9a-ab97-43f4-9a79-76669cf0e548.png" 
+                alt="Or4cl3 AI Solutions Logo" 
                 className="w-36 h-36 rounded-full neon-glow-cyan"
               />
             </div>

@@ -30,6 +30,9 @@ All colors MUST be HSL.
     --accent: 120 100% 50%;
     --accent-foreground: 220 25% 8%;
 
+    /* Neon Green for Pulse/Accent */
+    --neon-green: 120 100% 50%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 180 100% 95%;
 
