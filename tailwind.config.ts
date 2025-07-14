@@ -61,7 +61,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Arch1tech Custom Colors
+				'neon-cyan': 'hsl(var(--neon-cyan))',
+				'neon-green': 'hsl(var(--neon-green))',
+				'neon-purple': 'hsl(var(--neon-purple))',
+				'midnight-blue': 'hsl(var(--midnight-blue))',
+				'deep-space': 'hsl(var(--deep-space))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

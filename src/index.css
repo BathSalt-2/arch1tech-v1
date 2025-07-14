@@ -8,35 +8,59 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Arch1tech Dark Neon Theme */
+    --background: 220 25% 8%;
+    --foreground: 180 100% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 30% 12%;
+    --card-foreground: 180 100% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 35% 15%;
+    --popover-foreground: 180 100% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 220 25% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 260 100% 65%;
+    --secondary-foreground: 180 100% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 20% 18%;
+    --muted-foreground: 180 30% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 120 100% 50%;
+    --accent-foreground: 220 25% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 180 100% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 30% 20%;
+    --input: 220 30% 15%;
+    --ring: 180 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Arch1tech Custom Colors */
+    --neon-cyan: 180 100% 50%;
+    --neon-green: 120 100% 50%;
+    --neon-purple: 260 100% 65%;
+    --midnight-blue: 220 25% 8%;
+    --deep-space: 220 35% 5%;
+    --holographic-glow: 180 100% 50%;
+    
+    /* Gradients */
+    --gradient-holographic: linear-gradient(135deg, hsl(var(--neon-cyan) / 0.3), hsl(var(--neon-purple) / 0.3));
+    --gradient-neon: linear-gradient(90deg, hsl(var(--neon-cyan)), hsl(var(--neon-green)));
+    --gradient-space: linear-gradient(180deg, hsl(var(--midnight-blue)), hsl(var(--deep-space)));
+    
+    /* Shadows & Glows */
+    --glow-cyan: 0 0 20px hsl(var(--neon-cyan) / 0.5);
+    --glow-green: 0 0 20px hsl(var(--neon-green) / 0.5);
+    --glow-purple: 0 0 20px hsl(var(--neon-purple) / 0.5);
+    --shadow-holographic: 0 8px 32px hsl(var(--neon-cyan) / 0.2);
+    
+    /* Animations */
+    --transition-glow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --pulse-duration: 2s;
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +125,107 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-space);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Holographic Effects */
+  .holographic-border {
+    @apply relative;
+    background: var(--gradient-holographic);
+    border-radius: var(--radius);
+    padding: 1px;
+  }
+  
+  .holographic-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--gradient-holographic);
+    opacity: 0.6;
+    filter: blur(8px);
+    z-index: -1;
+  }
+  
+  .holographic-content {
+    @apply bg-card rounded-lg;
+    border-radius: calc(var(--radius) - 1px);
+  }
+  
+  /* Neon Glow Effects */
+  .neon-glow-cyan {
+    box-shadow: var(--glow-cyan);
+    transition: var(--transition-glow);
+  }
+  
+  .neon-glow-green {
+    box-shadow: var(--glow-green);
+    transition: var(--transition-glow);
+  }
+  
+  .neon-glow-purple {
+    box-shadow: var(--glow-purple);
+    transition: var(--transition-glow);
+  }
+  
+  /* Pulse Animations */
+  .pulse-cyan {
+    animation: pulse-cyan var(--pulse-duration) infinite;
+  }
+  
+  .pulse-green {
+    animation: pulse-green var(--pulse-duration) infinite;
+  }
+  
+  /* Text Gradients */
+  .text-gradient-neon {
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .text-gradient-holographic {
+    background: var(--gradient-holographic);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  @keyframes pulse-cyan {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(var(--neon-cyan) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.8), 0 0 40px hsl(var(--neon-cyan) / 0.4);
+    }
+  }
+  
+  @keyframes pulse-green {
+    0%, 100% {
+      box-shadow: 0 0 5px hsl(var(--neon-green) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px hsl(var(--neon-green) / 0.8), 0 0 40px hsl(var(--neon-green) / 0.4);
+    }
+  }
+  
+  @keyframes holographic-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-holographic-rotate {
+    animation: holographic-rotate 4s linear infinite;
   }
 }
