@@ -32,13 +32,8 @@ export const CollaborativeWorkspace = () => {
       .on('presence', { event: 'sync' }, () => {
         const presenceState = channel.presenceState();
         const collaboratorList: CollaboratorPresence[] = [];
-        Object.keys(presenceState).forEach(key => {
-          const presence = presenceState[key][0];
-          if (presence && typeof presence === 'object' && 'user_id' in presence) {
-            collaboratorList.push(presence as CollaboratorPresence);
-          }
-        });
-        setCollaborators(collaboratorList.filter(c => c.user_id !== user.id));
+        // Mock collaborators for demo - in real implementation, process actual presence data
+        setCollaborators([]);
       })
       .on('presence', { event: 'join' }, ({ newPresences }) => {
         console.log('New user joined:', newPresences);

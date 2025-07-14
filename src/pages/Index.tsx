@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { LandingPage } from "@/components/LandingPage";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { Splash } from "@/components/Splash";
 import { Dashboard } from "@/components/Dashboard";
 import { IdeaCapture } from "@/components/IdeaCapture";
@@ -15,7 +17,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -62,6 +66,29 @@ const Index = () => {
   // Don't render anything if user is not logged in (will redirect)
   if (!user) {
     return null;
+  }
+
+  // Landing page flow
+  if (showLanding) {
+    return (
+      <LandingPage 
+        onEnter={() => {
+          setShowLanding(false);
+          setShowLoading(true);
+        }} 
+      />
+    );
+  }
+
+  if (showLoading) {
+    return (
+      <LoadingScreen 
+        onComplete={() => {
+          setShowLoading(false);
+          setShowSplash(true);
+        }} 
+      />
+    );
   }
 
   if (showSplash) {
