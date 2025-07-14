@@ -8,7 +8,7 @@ import { IdeaCapture } from "@/components/IdeaCapture";
 import { VibeCodeAI } from "@/components/VibeCodeAI";
 import { VisualLogicDesigner } from "@/components/VisualLogicDesigner";
 import ProjectDeployment from "@/components/ProjectDeployment";
-import FileUploader from "@/components/FileUploader";
+import FileUploadManager from "@/components/FileUploadManager";
 import { AIMarketplace } from "@/components/AIMarketplace";
 import { CustomLLMBuilder } from "@/components/CustomLLMBuilder";
 import { Astrid } from "@/components/Astrid";
@@ -45,8 +45,8 @@ const Index = () => {
         return <VisualLogicDesigner />;
       case 'deploy':
         return <ProjectDeployment />;
-      case 'upload':
-        return <FileUploader />;
+      case 'files':
+        return <FileUploadManager />;
       case 'marketplace':
         return <AIMarketplace />;
       case 'custom-llm':

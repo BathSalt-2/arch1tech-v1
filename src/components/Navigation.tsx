@@ -28,7 +28,7 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
     { id: 'vibe', icon: Brain, label: 'VibeAI' },
     { id: 'logic', icon: Workflow, label: 'Logic' },
     { id: 'deploy', icon: Rocket, label: 'Deploy' },
-    { id: 'upload', icon: Upload, label: 'Upload' },
+    { id: 'files', icon: Upload, label: 'Files' },
     { id: 'marketplace', icon: ShoppingBag, label: 'Market' },
     { id: 'custom-llm', icon: Database, label: 'LLM' },
     { id: 'astrid', icon: Bot, label: 'Astrid' },
