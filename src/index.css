@@ -39,18 +39,21 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Arch1tech Custom Colors */
+    /* Arch1tech Custom Colors - Enhanced Cosmic Theme */
     --neon-cyan: 180 100% 50%;
-    --neon-green: 120 100% 50%;
-    --neon-purple: 260 100% 65%;
+    --neon-blue: 220 100% 60%;
+    --neon-purple: 280 100% 70%;
+    --neon-pink: 320 100% 65%;
     --midnight-blue: 220 25% 8%;
     --deep-space: 220 35% 5%;
+    --cosmic-violet: 260 50% 15%;
     --holographic-glow: 180 100% 50%;
     
-    /* Gradients */
-    --gradient-holographic: linear-gradient(135deg, hsl(var(--neon-cyan) / 0.3), hsl(var(--neon-purple) / 0.3));
-    --gradient-neon: linear-gradient(90deg, hsl(var(--neon-cyan)), hsl(var(--neon-green)));
-    --gradient-space: linear-gradient(180deg, hsl(var(--midnight-blue)), hsl(var(--deep-space)));
+    /* Enhanced Gradients */
+    --gradient-holographic: linear-gradient(135deg, hsl(var(--neon-cyan) / 0.3), hsl(var(--neon-purple) / 0.3), hsl(var(--neon-pink) / 0.2));
+    --gradient-neural: linear-gradient(90deg, hsl(var(--neon-cyan)), hsl(var(--neon-blue)), hsl(var(--neon-purple)));
+    --gradient-cosmic: linear-gradient(135deg, hsl(var(--neon-purple)), hsl(var(--neon-pink)), hsl(var(--neon-cyan)));
+    --gradient-space: linear-gradient(180deg, hsl(var(--midnight-blue)), hsl(var(--cosmic-violet)), hsl(var(--deep-space)));
     
     /* Shadows & Glows */
     --glow-cyan: 0 0 20px hsl(var(--neon-cyan) / 0.5);
@@ -181,8 +184,15 @@ All colors MUST be HSL.
   }
   
   /* Text Gradients */
-  .text-gradient-neon {
-    background: var(--gradient-neon);
+  .text-gradient-neural {
+    background: var(--gradient-neural);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .text-gradient-cosmic {
+    background: var(--gradient-cosmic);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

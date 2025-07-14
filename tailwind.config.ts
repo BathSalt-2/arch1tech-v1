@@ -62,12 +62,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Arch1tech Custom Colors
+				// Arch1tech Custom Colors - Enhanced Cosmic Theme
 				'neon-cyan': 'hsl(var(--neon-cyan))',
-				'neon-green': 'hsl(var(--neon-green))',
+				'neon-blue': 'hsl(var(--neon-blue))',
 				'neon-purple': 'hsl(var(--neon-purple))',
+				'neon-pink': 'hsl(var(--neon-pink))',
 				'midnight-blue': 'hsl(var(--midnight-blue))',
-				'deep-space': 'hsl(var(--deep-space))'
+				'deep-space': 'hsl(var(--deep-space))',
+				'cosmic-violet': 'hsl(var(--cosmic-violet))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import logoImage from "../assets/arch1tech-logo.png";
 
 interface SplashProps {
   onComplete: () => void;
@@ -55,23 +56,27 @@ export function Splash({ onComplete }: SplashProps) {
         </div>
       </div>
 
-      {/* Main logo */}
-      <div className="relative z-10 flex flex-col items-center space-y-8">
-        <div className="relative">
-          {/* Holographic rotating ring */}
-          <div className="w-32 h-32 border-2 border-neon-cyan rounded-full animate-holographic-rotate neon-glow-cyan opacity-50" />
-          
-          {/* Inner logo */}
-          <div className="absolute inset-4 bg-gradient-to-br from-neon-cyan via-neon-purple to-neon-green rounded-full flex items-center justify-center neon-glow-cyan">
-            <div className="text-midnight-blue font-bold text-2xl">Ω</div>
+        {/* Main logo */}
+        <div className="relative z-10 flex flex-col items-center space-y-8">
+          <div className="relative">
+            {/* Holographic rotating ring */}
+            <div className="w-40 h-40 border-2 border-neon-cyan rounded-full animate-holographic-rotate neon-glow-cyan opacity-30" />
+            
+            {/* Logo image */}
+            <div className="absolute inset-2 flex items-center justify-center">
+              <img 
+                src={logoImage} 
+                alt="Arch1tech Logo" 
+                className="w-36 h-36 rounded-full neon-glow-cyan"
+              />
+            </div>
           </div>
-        </div>
 
         {/* Brand text */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-gradient-neon">Arch1tech</h1>
-          <p className="text-muted-foreground text-lg">Powered by Or4cl3 AI Solutions</p>
-          <p className="text-sm text-neon-cyan italic">Build the future, one thought at a time.</p>
+        <div className="text-center space-y-3">
+          <h1 className="text-5xl font-bold text-gradient-neural bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple bg-clip-text text-transparent">Arch1tech</h1>
+          <p className="text-muted-foreground text-lg font-medium">Powered by Or4cl3 AI Solutions</p>
+          <p className="text-sm text-neon-pink italic font-light tracking-wide">Build the future, one thought at a time.</p>
         </div>
 
         {/* Loading indicator */}
