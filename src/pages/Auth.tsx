@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { LoadingScreen } from '@/components/LoadingScreen';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -74,7 +76,8 @@ const Auth = () => {
       if (error) {
         setError(error.message);
       } else {
-        navigate('/');
+        // Show loading screen before navigating to dashboard
+        setShowLoading(true);
       }
     } catch (err: any) {
       setError('An unexpected error occurred');
@@ -82,6 +85,17 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Show loading screen after successful authentication
+  if (showLoading) {
+    return (
+      <LoadingScreen 
+        onComplete={() => {
+          navigate('/');
+        }} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center p-4">

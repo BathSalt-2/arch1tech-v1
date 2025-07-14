@@ -24,12 +24,12 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to auth if not logged in
+  // Redirect to auth if not logged in and we're past the landing page
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !showLanding) {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, showLanding]);
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -74,10 +74,21 @@ const Index = () => {
       <LandingPage 
         onEnter={() => {
           setShowLanding(false);
-          setShowLoading(true);
+          // If not authenticated, go to auth page
+          if (!user) {
+            navigate('/auth');
+          } else {
+            // If already authenticated, go to loading screen
+            setShowLoading(true);
+          }
         }} 
       />
     );
+  }
+
+  // Don't render anything if user is not logged in (will redirect to auth)
+  if (!user) {
+    return null;
   }
 
   if (showLoading) {
