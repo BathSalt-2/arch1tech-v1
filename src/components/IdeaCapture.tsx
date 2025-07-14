@@ -2,11 +2,38 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic, Send, FileText, Lightbulb, Target, Users } from "lucide-react";
+import { Mic, Send, FileText, Lightbulb, Target, Users, Loader2, Sparkles } from "lucide-react";
+import { aiService } from "@/lib/ai-service";
+import { useToast } from "@/hooks/use-toast";
 
 export function IdeaCapture() {
   const [idea, setIdea] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [enhancedIdea, setEnhancedIdea] = useState<any>(null);
+  const { toast } = useToast();
+
+  const handleEnhanceIdea = async () => {
+    if (!idea.trim()) return;
+    
+    setIsProcessing(true);
+    try {
+      const result = await aiService.enhanceIdea(idea);
+      setEnhancedIdea(result);
+      toast({
+        title: "✨ Idea Enhanced",
+        description: `Complexity: ${result.complexity} • Estimated: ${result.estimatedTime}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Enhancement Failed",
+        description: "Using basic analysis instead.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const suggestions = [
     { icon: Target, text: "Add your goal or objective" },
@@ -98,8 +125,58 @@ export function IdeaCapture() {
         </div>
       </Card>
 
+      {/* Enhanced Idea Display */}
+      {enhancedIdea && (
+        <Card className="holographic-border">
+          <div className="holographic-content">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-neon-purple" />
+                <span>AI Enhanced Idea</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="bg-muted/20 rounded-lg p-3 border border-neon-purple/20">
+                <p className="text-sm leading-relaxed">{enhancedIdea.enhanced}</p>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Complexity: {enhancedIdea.complexity}</span>
+                <span className="text-muted-foreground">Est. Time: {enhancedIdea.estimatedTime}</span>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-neon-cyan">AI Suggestions:</p>
+                {enhancedIdea.suggestions.slice(0, 2).map((suggestion: string, index: number) => (
+                  <div key={index} className="text-xs text-muted-foreground bg-muted/10 rounded p-2">
+                    • {suggestion}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </div>
+        </Card>
+      )}
+
       {/* Action Buttons */}
       <div className="space-y-3">
+        <Button 
+          variant="secondary" 
+          className="w-full h-12"
+          disabled={!idea.trim() || isProcessing}
+          onClick={handleEnhanceIdea}
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Enhancing with AI...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Enhance with AI
+            </>
+          )}
+        </Button>
+        
         <Button 
           variant="neon" 
           className="w-full h-12"

@@ -4,7 +4,10 @@ import { Dashboard } from "@/components/Dashboard";
 import { IdeaCapture } from "@/components/IdeaCapture";
 import { VibeCodeAI } from "@/components/VibeCodeAI";
 import { VisualLogicDesigner } from "@/components/VisualLogicDesigner";
+import { AIMarketplace } from "@/components/AIMarketplace";
+import { CustomLLMBuilder } from "@/components/CustomLLMBuilder";
 import { Navigation } from "@/components/Navigation";
+import { AIInitializer } from "@/components/AIInitializer";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -20,6 +23,10 @@ const Index = () => {
         return <VibeCodeAI />;
       case 'logic':
         return <VisualLogicDesigner />;
+      case 'marketplace':
+        return <AIMarketplace />;
+      case 'custom-llm':
+        return <CustomLLMBuilder />;
       default:
         return <Dashboard />;
     }
@@ -30,10 +37,12 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {renderCurrentView()}
-      <Navigation currentView={currentView} onViewChange={setCurrentView} />
-    </div>
+    <AIInitializer>
+      <div className="min-h-screen bg-background">
+        {renderCurrentView()}
+        <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      </div>
+    </AIInitializer>
   );
 };
 

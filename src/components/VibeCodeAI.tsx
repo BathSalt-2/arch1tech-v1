@@ -1,12 +1,45 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Edit, RefreshCw, Sparkles, ArrowRight, Info } from "lucide-react";
+import { Check, Edit, RefreshCw, Sparkles, ArrowRight, Info, Loader2 } from "lucide-react";
+import { aiService } from "@/lib/ai-service";
+import { useToast } from "@/hooks/use-toast";
 
 export function VibeCodeAI() {
-  const originalInput = "I want to build an AI-powered customer service chatbot that can handle complex billing inquiries and integrate with our existing CRM system.";
-  
-  const optimizedPrompt = `Build an intelligent customer service chatbot with the following specifications:
+  const [originalInput, setOriginalInput] = useState("I want to build an AI-powered customer service chatbot that can handle complex billing inquiries and integrate with our existing CRM system.");
+  const [refinementResult, setRefinementResult] = useState<any>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  const { toast } = useToast();
+
+  const handleRefine = async () => {
+    setIsRefining(true);
+    try {
+      const result = await aiService.refinePrompt(originalInput);
+      setRefinementResult(result);
+      toast({
+        title: "🎯 Prompt Refined",
+        description: `Agent type: ${result.agentType}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Refinement Failed",
+        description: "Using template refinement instead.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  // Auto-refine on component mount
+  useEffect(() => {
+    if (!refinementResult) {
+      handleRefine();
+    }
+  }, []);
+
+  const optimizedPrompt = refinementResult?.refined || `Build an intelligent customer service chatbot with the following specifications:
 
 **Core Functionality:**
 - Handle complex billing inquiries with natural language understanding
@@ -31,7 +64,7 @@ export function VibeCodeAI() {
 - Customer satisfaction >4.5/5
 - Average handling time <3 minutes`;
 
-  const changes = [
+  const changes = refinementResult?.changes || [
     { type: "added", text: "Specified technical architecture requirements" },
     { type: "enhanced", text: "Added specific performance metrics and constraints" },
     { type: "clarified", text: "Defined integration patterns and security requirements" },
@@ -46,8 +79,10 @@ export function VibeCodeAI() {
           <Sparkles className="w-4 h-4 text-midnight-blue" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gradient-neon">VibeCodeAI</h1>
-          <p className="text-sm text-muted-foreground">Semantic refinement complete</p>
+          <h1 className="text-xl font-bold text-gradient-neural">VibeCodeAI</h1>
+          <p className="text-sm text-muted-foreground">
+            {isRefining ? "Refining prompt..." : "Semantic refinement complete"}
+          </p>
         </div>
       </div>
 
@@ -119,7 +154,9 @@ export function VibeCodeAI() {
             </div>
             <div>
               <p className="text-sm font-medium">Agent Type Detected</p>
-              <p className="text-xs text-muted-foreground">Conversational AI with CRM Integration</p>
+              <p className="text-xs text-muted-foreground">
+                {refinementResult?.agentType || "Conversational AI with CRM Integration"}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -138,8 +175,16 @@ export function VibeCodeAI() {
             <Edit className="w-4 h-4 mr-2" />
             Edit Manually
           </Button>
-          <Button variant="ghost">
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button 
+            variant="ghost" 
+            onClick={handleRefine}
+            disabled={isRefining}
+          >
+            {isRefining ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
             Regenerate
           </Button>
         </div>
