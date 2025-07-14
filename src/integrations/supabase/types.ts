@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      file_uploads: {
+        Row: {
+          created_at: string
+          extraction_path: string | null
+          file_size: number
+          file_type: string
+          id: string
+          metadata: Json | null
+          original_filename: string
+          processing_status: string | null
+          storage_path: string
+          updated_at: string
+          upload_status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          extraction_path?: string | null
+          file_size: number
+          file_type: string
+          id?: string
+          metadata?: Json | null
+          original_filename: string
+          processing_status?: string | null
+          storage_path: string
+          updated_at?: string
+          upload_status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          extraction_path?: string | null
+          file_size?: number
+          file_type?: string
+          id?: string
+          metadata?: Json | null
+          original_filename?: string
+          processing_status?: string | null
+          storage_path?: string
+          updated_at?: string
+          upload_status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_projects: {
         Row: {
           created_at: string

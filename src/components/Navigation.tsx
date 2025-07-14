@@ -9,7 +9,8 @@ import {
   ShoppingBag,
   Settings,
   LogOut,
-  Rocket
+  Rocket,
+  Upload
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -27,6 +28,7 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
     { id: 'vibe', icon: Brain, label: 'VibeAI' },
     { id: 'logic', icon: Workflow, label: 'Logic' },
     { id: 'deploy', icon: Rocket, label: 'Deploy' },
+    { id: 'upload', icon: Upload, label: 'Upload' },
     { id: 'marketplace', icon: ShoppingBag, label: 'Market' },
     { id: 'custom-llm', icon: Database, label: 'LLM' },
     { id: 'astrid', icon: Bot, label: 'Astrid' },
@@ -64,8 +66,8 @@ export function Navigation({ currentView, onViewChange }: NavigationProps) {
             </Button>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3 mt-3">
-          {navItems.slice(8, 9).map((item) => (
+        <div className="grid grid-cols-3 gap-3 mt-3">
+          {navItems.slice(8, 10).map((item) => (
             <Button
               key={item.id}
               variant={currentView === item.id ? "neon" : "ghost"}
