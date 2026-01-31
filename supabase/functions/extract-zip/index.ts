@@ -1,29 +1,125 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.5';
+import { z } from 'https://deno.land/x/zod@v3.21.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
+
+// Input validation schema
+const RequestSchema = z.object({
+  fileId: z.string().uuid({ message: 'Invalid fileId format - must be a UUID' }),
+  filePath: z.string()
+    .min(1, 'filePath cannot be empty')
+    .max(1024, 'filePath too long')
+    .refine((path) => !path.includes('..'), 'Path traversal not allowed')
+    .refine((path) => !path.startsWith('/'), 'Absolute paths not allowed')
+});
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-    const { fileId, filePath } = await req.json();
-
-    if (!fileId || !filePath) {
-      throw new Error('Missing fileId or filePath');
+    // ===== AUTHENTICATION =====
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log(`Starting ZIP extraction for file: ${filePath}`);
+    // Create client with user's auth token to validate
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error('Failed to validate JWT:', claimsError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    if (!userId) {
+      console.error('No user ID in JWT claims');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Authenticated user: ${userId}`);
+
+    // ===== INPUT VALIDATION =====
+    let body;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body', success: false }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const validationResult = RequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      console.error('Input validation failed:', validationResult.error.errors);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input', 
+          details: validationResult.error.errors.map(e => e.message),
+          success: false 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { fileId, filePath } = validationResult.data;
+    console.log(`Processing ZIP extraction for file: ${filePath}, fileId: ${fileId}`);
+
+    // Use service role client for database operations (after auth validated)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // ===== OWNERSHIP VERIFICATION =====
+    const { data: fileRecord, error: fileError } = await supabase
+      .from('file_uploads')
+      .select('user_id')
+      .eq('id', fileId)
+      .single();
+
+    if (fileError) {
+      console.error(`Failed to get file record: ${fileError.message}`);
+      return new Response(
+        JSON.stringify({ error: 'File not found', success: false }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify the authenticated user owns this file
+    if (fileRecord.user_id !== userId) {
+      console.error(`User ${userId} attempted to access file owned by ${fileRecord.user_id}`);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden', success: false }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Ownership verified, proceeding with extraction');
 
     // Get file from storage
     const { data: fileData, error: downloadError } = await supabase.storage
@@ -31,7 +127,11 @@ serve(async (req) => {
       .download(filePath);
 
     if (downloadError) {
-      throw new Error(`Failed to download file: ${downloadError.message}`);
+      console.error(`Failed to download file: ${downloadError.message}`);
+      return new Response(
+        JSON.stringify({ error: 'Failed to download file', success: false }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Convert blob to array buffer for processing
@@ -57,18 +157,6 @@ serve(async (req) => {
     // Simulate processing time
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Get user info from the file record
-    const { data: fileRecord, error: fileError } = await supabase
-      .from('file_uploads')
-      .select('user_id')
-      .eq('id', fileId)
-      .single();
-
-    if (fileError) {
-      throw new Error(`Failed to get file record: ${fileError.message}`);
-    }
-
-    const userId = fileRecord.user_id;
     const extractionPath = `${userId}/extracted/${fileId}`;
 
     // In a real implementation, you would:
@@ -104,12 +192,7 @@ serve(async (req) => {
       .from('file_uploads')
       .update({
         processing_status: 'completed',
-        extraction_path: extractionPath,
-        metadata: {
-          extracted_files: extractedFiles,
-          extraction_date: new Date().toISOString(),
-          original_file_size: uint8Array.length
-        }
+        extracted_files: extractedFiles,
       })
       .eq('id', fileId);
 
@@ -135,7 +218,7 @@ serve(async (req) => {
     console.error('Error in extract-zip function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: 'Internal server error',
         success: false 
       }),
       {
