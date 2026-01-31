@@ -60,30 +60,16 @@ const Index = () => {
     }
   };
 
-  // Show loading spinner while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // Don't render anything if user is not logged in (will redirect)
-  if (!user) {
-    return null;
-  }
-
-  // Landing page flow
+  // Landing page flow - show to everyone first
   if (showLanding) {
     return (
       <LandingPage 
         onEnter={() => {
           setShowLanding(false);
           // If not authenticated, go to auth page
-          if (!user) {
+          if (!user && !loading) {
             navigate('/auth');
-          } else {
+          } else if (user) {
             // If already authenticated, go to loading screen
             setShowLoading(true);
           }
@@ -92,8 +78,18 @@ const Index = () => {
     );
   }
 
+  // Show loading spinner while checking auth (after landing page dismissed)
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   // Don't render anything if user is not logged in (will redirect to auth)
   if (!user) {
+    navigate('/auth');
     return null;
   }
 
