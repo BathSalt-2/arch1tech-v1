@@ -7,21 +7,22 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
       file_uploads: {
         Row: {
           created_at: string
-          extraction_path: string | null
+          extracted_files: Json | null
           file_size: number
-          file_type: string
+          file_type: string | null
+          filename: string
           id: string
-          metadata: Json | null
+          is_zip: boolean | null
           original_filename: string
           processing_status: string | null
           storage_path: string
@@ -31,11 +32,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          extraction_path?: string | null
+          extracted_files?: Json | null
           file_size: number
-          file_type: string
+          file_type?: string | null
+          filename: string
           id?: string
-          metadata?: Json | null
+          is_zip?: boolean | null
           original_filename: string
           processing_status?: string | null
           storage_path: string
@@ -45,133 +47,17 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          extraction_path?: string | null
+          extracted_files?: Json | null
           file_size?: number
-          file_type?: string
+          file_type?: string | null
+          filename?: string
           id?: string
-          metadata?: Json | null
+          is_zip?: boolean | null
           original_filename?: string
           processing_status?: string | null
           storage_path?: string
           updated_at?: string
           upload_status?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      generated_projects: {
-        Row: {
-          created_at: string
-          description: string
-          documentation: string | null
-          id: string
-          roadmap: Json | null
-          tech_stack: string[] | null
-          templates: Json | null
-          title: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          documentation?: string | null
-          id?: string
-          roadmap?: Json | null
-          tech_stack?: string[] | null
-          templates?: Json | null
-          title: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          documentation?: string | null
-          id?: string
-          roadmap?: Json | null
-          tech_stack?: string[] | null
-          templates?: Json | null
-          title?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          ai_preferences: Json | null
-          avatar_url: string | null
-          bio: string | null
-          created_at: string
-          display_name: string | null
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          ai_preferences?: Json | null
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          ai_preferences?: Json | null
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      projects: {
-        Row: {
-          code_templates: Json | null
-          created_at: string
-          description: string
-          documentation: string | null
-          github_repo_name: string | null
-          github_repo_url: string | null
-          id: string
-          name: string
-          roadmap: Json | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          code_templates?: Json | null
-          created_at?: string
-          description: string
-          documentation?: string | null
-          github_repo_name?: string | null
-          github_repo_url?: string | null
-          id?: string
-          name: string
-          roadmap?: Json | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          code_templates?: Json | null
-          created_at?: string
-          description?: string
-          documentation?: string | null
-          github_repo_name?: string | null
-          github_repo_url?: string | null
-          id?: string
-          name?: string
-          roadmap?: Json | null
-          status?: string
-          updated_at?: string
           user_id?: string
         }
         Relationships: []

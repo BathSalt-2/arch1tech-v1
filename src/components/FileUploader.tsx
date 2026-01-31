@@ -115,15 +115,14 @@ const FileUploader = () => {
         .from('file_uploads')
         .insert({
           user_id: user.id,
+          filename: file.name,
           original_filename: file.name,
           file_size: file.size,
           file_type: file.type,
           storage_path: filePath,
           upload_status: 'completed',
-          metadata: {
-            upload_date: new Date().toISOString(),
-            original_size: file.size
-          }
+          processing_status: 'ready',
+          is_zip: file.name.toLowerCase().endsWith('.zip')
         })
         .select()
         .single();
@@ -141,7 +140,7 @@ const FileUploader = () => {
         // Call ZIP extraction edge function
         const { data: extractData, error: extractError } = await supabase.functions
           .invoke('extract-zip', {
-            body: { fileId: fileRecord.id, filePath }
+            body: { fileId: fileRecord?.id, filePath }
           });
 
         if (extractError) {
