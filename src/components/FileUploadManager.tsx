@@ -21,15 +21,18 @@ import {
 
 interface FileUpload {
   id: string;
+  user_id: string;
+  filename: string;
   original_filename: string;
   file_size: number;
-  file_type: string;
+  file_type: string | null;
   storage_path: string;
   upload_status: string;
-  processing_status: string;
-  extraction_path?: string;
-  metadata: any;
+  processing_status: string | null;
+  is_zip: boolean | null;
+  extracted_files: any;
   created_at: string;
+  updated_at: string;
 }
 
 const FileUploadManager = () => {
@@ -78,14 +81,15 @@ const FileUploadManager = () => {
       const { error: dbError } = await supabase
         .from('file_uploads')
         .insert({
-          id: fileId,
           user_id: userId,
+          filename: file.name,
           original_filename: file.name,
           file_size: file.size,
           file_type: file.type,
           storage_path: `${userId}/${fileId}/${file.name}`,
           upload_status: 'uploading',
-          processing_status: 'pending'
+          processing_status: 'pending',
+          is_zip: file.name.endsWith('.zip')
         });
 
       if (dbError) throw dbError;
