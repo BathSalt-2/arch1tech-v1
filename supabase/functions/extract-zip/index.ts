@@ -2,9 +2,29 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.5';
 import { z } from 'https://deno.land/x/zod@v3.21.4/mod.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+// Allowed origins for CORS - restrict to your application domains
+const ALLOWED_ORIGINS = [
+  'https://arch1tech-v1.lovable.app',
+  'https://id-preview--9444df61-41c9-43dd-8637-ea4ac5c354a9.lovable.app',
+];
+
+// Add localhost for development if needed
+if (Deno.env.get('ENVIRONMENT') === 'development') {
+  ALLOWED_ORIGINS.push('http://localhost:8080', 'http://localhost:5173');
+}
+
+// Get CORS headers with origin validation
+const getCorsHeaders = (origin: string | null): Record<string, string> => {
+  // Check if the origin is allowed
+  const allowedOrigin = origin && ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed.replace(/\/$/, '')))
+    ? origin 
+    : ALLOWED_ORIGINS[0]; // Default to first allowed origin
+  
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+    'Access-Control-Allow-Credentials': 'true',
+  };
 };
 
 // Input validation schema
@@ -17,7 +37,39 @@ const RequestSchema = z.object({
     .refine((path) => !path.startsWith('/'), 'Absolute paths not allowed')
 });
 
+// Error handling utility - maps internal errors to safe user messages
+const createErrorResponse = (
+  statusCode: number,
+  userMessage: string,
+  corsHeaders: Record<string, string>,
+  internalError?: unknown,
+  context?: string
+): Response => {
+  // Log detailed error server-side only
+  if (internalError) {
+    console.error(`[extract-zip] ${context || 'Error'}:`, {
+      message: internalError instanceof Error ? internalError.message : String(internalError),
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  // Return generic message to client
+  return new Response(
+    JSON.stringify({ 
+      error: userMessage,
+      success: false 
+    }),
+    { 
+      status: statusCode,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    }
+  );
+};
+
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -31,11 +83,7 @@ serve(async (req) => {
     // ===== AUTHENTICATION =====
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      console.error('Missing or invalid Authorization header');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized', success: false }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createErrorResponse(401, 'Authentication required', corsHeaders, null, 'Missing auth header');
     }
 
     // Create client with user's auth token to validate
@@ -47,20 +95,12 @@ serve(async (req) => {
     const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
     
     if (claimsError || !claimsData?.claims) {
-      console.error('Failed to validate JWT:', claimsError?.message);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized', success: false }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createErrorResponse(401, 'Invalid or expired session', corsHeaders, claimsError, 'JWT validation failed');
     }
 
     const userId = claimsData.claims.sub;
     if (!userId) {
-      console.error('No user ID in JWT claims');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized', success: false }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return createErrorResponse(401, 'Invalid session', corsHeaders, null, 'No user ID in claims');
     }
 
     console.log(`Authenticated user: ${userId}`);
@@ -69,16 +109,13 @@ serve(async (req) => {
     let body;
     try {
       body = await req.json();
-    } catch {
-      return new Response(
-        JSON.stringify({ error: 'Invalid JSON body', success: false }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    } catch (parseError) {
+      return createErrorResponse(400, 'Invalid request format', corsHeaders, parseError, 'JSON parse error');
     }
 
     const validationResult = RequestSchema.safeParse(body);
     if (!validationResult.success) {
-      console.error('Input validation failed:', validationResult.error.errors);
+      // Return only safe validation messages (these are defined in our schema)
       return new Response(
         JSON.stringify({ 
           error: 'Invalid input', 
@@ -90,7 +127,7 @@ serve(async (req) => {
     }
 
     const { fileId, filePath } = validationResult.data;
-    console.log(`Processing ZIP extraction for file: ${filePath}, fileId: ${fileId}`);
+    console.log(`Processing ZIP extraction for file: ${fileId}`);
 
     // Use service role client for database operations (after auth validated)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -102,21 +139,14 @@ serve(async (req) => {
       .eq('id', fileId)
       .single();
 
-    if (fileError) {
-      console.error(`Failed to get file record: ${fileError.message}`);
-      return new Response(
-        JSON.stringify({ error: 'File not found', success: false }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (fileError || !fileRecord) {
+      return createErrorResponse(404, 'File not found', corsHeaders, fileError, 'Database lookup failed');
     }
 
     // Verify the authenticated user owns this file
     if (fileRecord.user_id !== userId) {
-      console.error(`User ${userId} attempted to access file owned by ${fileRecord.user_id}`);
-      return new Response(
-        JSON.stringify({ error: 'Forbidden', success: false }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      console.error(`Unauthorized access attempt: user ${userId} tried to access file owned by another user`);
+      return createErrorResponse(403, 'Access denied', corsHeaders, null, 'Ownership mismatch');
     }
 
     console.log('Ownership verified, proceeding with extraction');
@@ -126,12 +156,8 @@ serve(async (req) => {
       .from('user-uploads')
       .download(filePath);
 
-    if (downloadError) {
-      console.error(`Failed to download file: ${downloadError.message}`);
-      return new Response(
-        JSON.stringify({ error: 'Failed to download file', success: false }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (downloadError || !fileData) {
+      return createErrorResponse(500, 'Failed to access file. Please ensure the file exists and try again.', corsHeaders, downloadError, 'Storage download failed');
     }
 
     // Convert blob to array buffer for processing
@@ -159,16 +185,11 @@ serve(async (req) => {
 
     const extractionPath = `${userId}/extracted/${fileId}`;
 
-    // In a real implementation, you would:
-    // 1. Extract the ZIP file contents
-    // 2. Upload each extracted file to the 'extracted-models' bucket
-    // 3. Update the file record with extraction details
-
     // For now, we'll just simulate this by uploading placeholder files
     const extractedFiles: string[] = [];
     
     for (const fileName of simulatedFiles) {
-      const placeholderContent = `// Extracted from ZIP: ${fileName}\n// Original file: ${filePath}\n// Extracted at: ${new Date().toISOString()}`;
+      const placeholderContent = `// Extracted from ZIP: ${fileName}\n// Extracted at: ${new Date().toISOString()}`;
       const extractedFilePath = `${extractionPath}/${fileName}`;
       
       try {
@@ -182,8 +203,8 @@ serve(async (req) => {
         if (!uploadError) {
           extractedFiles.push(fileName);
         }
-      } catch (error) {
-        console.warn(`Failed to upload ${fileName}:`, error);
+      } catch (uploadErr) {
+        console.warn(`Failed to upload extracted file:`, uploadErr);
       }
     }
 
@@ -197,7 +218,7 @@ serve(async (req) => {
       .eq('id', fileId);
 
     if (updateError) {
-      console.warn('Failed to update file record:', updateError);
+      console.warn('Failed to update file record');
     }
 
     console.log(`ZIP extraction completed. Extracted ${extractedFiles.length} files.`);
@@ -206,7 +227,6 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         extractedFiles,
-        extractionPath,
         message: `Successfully extracted ${extractedFiles.length} files from ZIP archive`
       }),
       {
@@ -215,16 +235,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in extract-zip function:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        success: false 
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return createErrorResponse(500, 'An error occurred while processing your request. Please try again.', corsHeaders, error, 'Unhandled exception');
   }
 });
