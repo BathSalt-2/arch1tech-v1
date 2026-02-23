@@ -4,96 +4,175 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
-import { 
-  Brain, 
-  Upload, 
-  Zap, 
-  Settings, 
-  Play,
-  Save,
-  FileText,
-  TrendingUp,
-  Clock,
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Brain,
+  Copy,
+  Download,
   CheckCircle,
-  AlertCircle,
-  Cpu
+  AlertTriangle,
+  Loader2,
+  Sparkles,
+  Settings,
+  FileText,
+  Code,
+  BookOpen
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+type TabType = 'system-prompt' | 'modelfile' | 'finetune' | 'model-card';
+
+interface GenerationResults {
+  systemPrompt: string;
+  modelfile: string;
+  finetuningSamples: string;
+  modelCard: string;
+}
+
+async function callGroq(apiKey: string, systemContent: string, userContent: string): Promise<string> {
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        { role: 'system', content: systemContent },
+        { role: 'user', content: userContent },
+      ],
+      stream: false,
+    }),
+  });
+  if (!response.ok) throw new Error(`API error ${response.status}`);
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content ?? '';
+}
+
+const GENERATION_STEPS = [
+  'Analyzing description',
+  'Generating system prompt',
+  'Writing Modelfile',
+  'Creating training data',
+  'Building model card',
+  'Complete!',
+];
 
 export function CustomLLMBuilder() {
-  const [modelName, setModelName] = useState("");
-  const [description, setDescription] = useState("");
-  const [temperature, setTemperature] = useState([0.7]);
-  const [maxTokens, setMaxTokens] = useState([512]);
-  const [trainingProgress, setTrainingProgress] = useState(0);
-  const [isTraining, setIsTraining] = useState(false);
+  const [description, setDescription] = useState('');
+  const [modelName, setModelName] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [results, setResults] = useState<GenerationResults | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('system-prompt');
+  const [apiKeySet] = useState(() => !!localStorage.getItem('arch1tech-groq-key'));
+  const [currentStep, setCurrentStep] = useState(0);
+  const [copiedTab, setCopiedTab] = useState<TabType | null>(null);
+  const { toast } = useToast();
 
-  const baseModels = [
-    { 
-      id: "phi3-mini", 
-      name: "Phi-3 Mini", 
-      size: "3.8B", 
-      type: "Instruction Following",
-      description: "Lightweight model for general tasks"
-    },
-    { 
-      id: "llama2-7b", 
-      name: "Llama 2 7B", 
-      size: "7B", 
-      type: "General Purpose",
-      description: "Balanced performance and efficiency"
-    },
-    { 
-      id: "mistral-7b", 
-      name: "Mistral 7B", 
-      size: "7B", 
-      type: "Code & Reasoning",
-      description: "Specialized for technical tasks"
-    },
-    { 
-      id: "codellama-7b", 
-      name: "Code Llama 7B", 
-      size: "7B", 
-      type: "Code Generation",
-      description: "Optimized for programming tasks"
+  const handleGenerate = async () => {
+    if (!description.trim()) return;
+    const apiKey = localStorage.getItem('arch1tech-groq-key');
+    if (!apiKey) {
+      toast({ title: 'API Key Required', description: 'Please add your Groq API key in Settings.', variant: 'destructive' });
+      return;
     }
-  ];
 
-  const [selectedBaseModel, setSelectedBaseModel] = useState(baseModels[0].id);
+    setIsGenerating(true);
+    setCurrentStep(0);
+    setResults(null);
 
-  const trainingSteps = [
-    { id: 1, name: "Data Upload", status: "completed", icon: Upload },
-    { id: 2, name: "Preprocessing", status: "completed", icon: Settings },
-    { id: 3, name: "Fine-tuning", status: "active", icon: Brain },
-    { id: 4, name: "Validation", status: "pending", icon: CheckCircle },
-    { id: 5, name: "Deployment", status: "pending", icon: Zap }
-  ];
+    try {
+      setCurrentStep(1);
+      const systemPromptPromise = callGroq(
+        apiKey,
+        'You are an expert AI system prompt engineer.',
+        `Generate a comprehensive system prompt for an AI assistant with this description: ${description}. The system prompt should define personality, capabilities, constraints, and style. Format: just the system prompt text, no other content.`
+      );
 
-  const handleStartTraining = () => {
-    setIsTraining(true);
-    // Simulate training progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 10;
-      if (progress >= 100) {
-        progress = 100;
-        setIsTraining(false);
-        clearInterval(interval);
-      }
-      setTrainingProgress(progress);
-    }, 1000);
+      setCurrentStep(2);
+      const modelfilePromise = callGroq(
+        apiKey,
+        'You are an expert in Ollama Modelfiles.',
+        `Generate an Ollama Modelfile for an AI named '${modelName || 'MyAI'}' with this description: ${description}. Use 'FROM llama3.2' as base. Include SYSTEM, PARAMETER temperature, and PARAMETER num_ctx. Format: just the Modelfile content.`
+      );
+
+      setCurrentStep(3);
+      const finetunePromise = callGroq(
+        apiKey,
+        'You are an expert in LLM fine-tuning data preparation.',
+        `Generate 5 fine-tuning examples in JSONL format (one per line) for an AI assistant with this description: ${description}. Each line: {"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}`
+      );
+
+      setCurrentStep(4);
+      const modelCardPromise = callGroq(
+        apiKey,
+        'You are an expert in HuggingFace model documentation.',
+        `Generate a HuggingFace model card in markdown for a custom AI model named '${modelName || 'MyAI'}' with this description: ${description}. Include: Model Description, Use Cases, Limitations, Training Data, Evaluation, License (OOML).`
+      );
+
+      const [systemPrompt, modelfile, finetuningSamples, modelCard] = await Promise.all([
+        systemPromptPromise,
+        modelfilePromise,
+        finetunePromise,
+        modelCardPromise,
+      ]);
+
+      setCurrentStep(5);
+      setResults({ systemPrompt, modelfile, finetuningSamples, modelCard });
+      setActiveTab('system-prompt');
+      toast({ title: 'Generation complete!', description: 'Your custom AI specs are ready.' });
+    } catch (err) {
+      toast({ title: 'Generation failed', description: String(err), variant: 'destructive' });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const getStepStatus = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-4 h-4 text-neon-green" />;
-      case 'active':
-        return <Clock className="w-4 h-4 text-neon-cyan animate-pulse" />;
-      case 'pending':
-        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
+  const handleCopy = async (text: string, tab: TabType) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedTab(tab);
+    setTimeout(() => setCopiedTab(null), 2000);
+  };
+
+  const handleExport = () => {
+    if (!results) return;
+    const content = [
+      '# System Prompt\n',
+      results.systemPrompt,
+      '\n\n---\n\n# Ollama Modelfile\n',
+      results.modelfile,
+      '\n\n---\n\n# Fine-tuning JSONL\n',
+      results.finetuningSamples,
+      '\n\n---\n\n# Model Card\n',
+      results.modelCard,
+    ].join('');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${modelName || 'my-ai'}-specs.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
+    { id: 'system-prompt', label: 'System Prompt', icon: Settings },
+    { id: 'modelfile', label: 'Ollama Modelfile', icon: Code },
+    { id: 'finetune', label: 'Fine-tune Data', icon: FileText },
+    { id: 'model-card', label: 'Model Card', icon: BookOpen },
+  ];
+
+  const getTabContent = (): string => {
+    if (!results) return '';
+    switch (activeTab) {
+      case 'system-prompt': return results.systemPrompt;
+      case 'modelfile': return results.modelfile;
+      case 'finetune': return results.finetuningSamples;
+      case 'model-card': return results.modelCard;
     }
   };
 
@@ -101,251 +180,154 @@ export function CustomLLMBuilder() {
     <div className="min-h-screen p-4 space-y-6 pb-32">
       {/* Header */}
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 bg-gradient-to-br from-neon-purple to-neon-pink rounded-full flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-br from-neon-purple to-neon-cyan rounded-full flex items-center justify-center">
           <Brain className="w-4 h-4 text-midnight-blue" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-gradient-cosmic">Custom LLM Builder</h1>
-          <p className="text-sm text-muted-foreground">Train your specialized model</p>
+          <p className="text-sm text-muted-foreground">Generate My AI — from words to deployable specs</p>
         </div>
       </div>
 
-      {/* Model Configuration */}
+      {/* API Key Warning */}
+      {!apiKeySet && (
+        <Alert className="border-yellow-500/50 bg-yellow-500/10">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <AlertDescription className="text-sm">
+            Groq API key not set.{' '}
+            <a href="/settings" className="text-neon-cyan underline">Go to Settings</a>{' '}to add your key.
+            Get a free key at{' '}
+            <a href="https://console.groq.com" target="_blank" rel="noreferrer" className="text-neon-cyan underline">console.groq.com</a>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Description Input */}
       <Card className="holographic-border">
         <div className="holographic-content">
           <CardHeader>
-            <CardTitle className="text-base">Model Configuration</CardTitle>
+            <CardTitle className="text-base">Describe Your AI</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <Textarea
+              placeholder={`Describe your AI in plain English. Example:\n\n"A helpful customer service AI that answers questions about software products, is friendly and concise, and knows Python and JavaScript. It should escalate to a human when it's unsure, and never make up information."`}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="bg-muted/20 border-neon-purple/20 focus:border-neon-purple/50 min-h-32"
+            />
             <div className="space-y-2">
-              <label className="text-sm font-medium">Model Name</label>
+              <label className="text-sm font-medium">Model Name (optional)</label>
               <Input
-                placeholder="e.g., customer-support-specialist"
+                placeholder="e.g., SupportBot, CodeHelper, DataAnalyst"
                 value={modelName}
                 onChange={(e) => setModelName(e.target.value)}
                 className="bg-muted/20 border-neon-purple/20 focus:border-neon-purple/50"
               />
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Description</label>
-              <Textarea
-                placeholder="Describe your model's purpose and capabilities..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="bg-muted/20 border-neon-purple/20 focus:border-neon-purple/50 min-h-20"
-              />
-            </div>
           </CardContent>
         </div>
       </Card>
 
-      {/* Base Model Selection */}
-      <Card className="holographic-border">
-        <div className="holographic-content">
-          <CardHeader>
-            <CardTitle className="text-base">Base Model</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {baseModels.map((model) => (
-              <div
-                key={model.id}
-                className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedBaseModel === model.id
-                    ? 'border-neon-purple bg-neon-purple/10'
-                    : 'border-muted bg-muted/20 hover:border-neon-purple/30'
-                }`}
-                onClick={() => setSelectedBaseModel(model.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-medium">{model.name}</h4>
-                      <Badge variant="outline" className="text-xs">{model.size}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">{model.description}</p>
-                  </div>
-                  <Badge variant="secondary">{model.type}</Badge>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </div>
-      </Card>
+      {/* Generate Button */}
+      <Button
+        onClick={handleGenerate}
+        disabled={isGenerating || !description.trim()}
+        className="w-full h-14 text-base font-semibold bg-gradient-to-r from-neon-purple to-neon-cyan hover:opacity-90 text-midnight-blue shadow-lg shadow-neon-purple/30 transition-all"
+      >
+        {isGenerating ? (
+          <>
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            Generating...
+          </>
+        ) : (
+          <>
+            <Sparkles className="w-5 h-5 mr-2" />
+            Generate My AI
+          </>
+        )}
+      </Button>
 
-      {/* Training Parameters */}
-      <Card className="holographic-border">
-        <div className="holographic-content">
-          <CardHeader>
-            <CardTitle className="text-base">Training Parameters</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Temperature</label>
-                <span className="text-sm text-muted-foreground">{temperature[0]}</span>
-              </div>
-              <Slider
-                value={temperature}
-                onValueChange={setTemperature}
-                max={1}
-                min={0}
-                step={0.1}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Lower values make the model more focused and deterministic
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Max Tokens</label>
-                <span className="text-sm text-muted-foreground">{maxTokens[0]}</span>
-              </div>
-              <Slider
-                value={maxTokens}
-                onValueChange={setMaxTokens}
-                max={2048}
-                min={128}
-                step={64}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Maximum length of generated responses
-              </p>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
-
-      {/* Training Data */}
-      <Card className="holographic-border">
-        <div className="holographic-content">
-          <CardHeader>
-            <CardTitle className="text-base">Training Data</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full h-16 border-dashed border-2 border-neon-cyan/30 hover:border-neon-cyan/50">
-              <Upload className="w-5 h-5 mr-2 text-neon-cyan" />
-              <span>Upload training dataset (JSON, CSV, TXT)</span>
-            </Button>
-            
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-lg font-bold text-neon-cyan">2.5K</div>
-                <div className="text-xs text-muted-foreground">Examples</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-neon-green">98%</div>
-                <div className="text-xs text-muted-foreground">Quality</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-neon-purple">4.2MB</div>
-                <div className="text-xs text-muted-foreground">Size</div>
-              </div>
-            </div>
-          </CardContent>
-        </div>
-      </Card>
-
-      {/* Training Progress */}
-      {isTraining && (
+      {/* Generation Progress */}
+      {isGenerating && (
         <Card className="border-neon-cyan/30 bg-neon-cyan/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <Cpu className="w-4 h-4 text-neon-cyan animate-pulse" />
-                <span className="text-sm font-medium">Training in progress...</span>
-              </div>
-              <span className="text-sm text-neon-cyan">{Math.round(trainingProgress)}%</span>
+          <CardContent className="p-4 space-y-3">
+            <p className="text-sm font-medium text-neon-cyan">Generating your AI specs...</p>
+            <div className="space-y-2">
+              {GENERATION_STEPS.map((step, i) => (
+                <div key={step} className={`flex items-center space-x-2 text-xs ${
+                  i < currentStep ? 'text-neon-green' :
+                  i === currentStep ? 'text-neon-cyan animate-pulse' :
+                  'text-muted-foreground'
+                }`}>
+                  {i < currentStep ? (
+                    <CheckCircle className="w-3 h-3" />
+                  ) : i === currentStep ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <div className="w-3 h-3 rounded-full border border-current" />
+                  )}
+                  <span>{step}</span>
+                </div>
+              ))}
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div 
-                className="bg-neon-cyan h-2 rounded-full transition-all duration-300"
-                style={{ width: `${trainingProgress}%` }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Estimated time remaining: {Math.round((100 - trainingProgress) / 10)} minutes
-            </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Training Pipeline */}
-      <Card className="holographic-border">
-        <div className="holographic-content">
-          <CardHeader>
-            <CardTitle className="text-base">Training Pipeline</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {trainingSteps.map((step, index) => (
-              <div key={step.id} className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-8 h-8">
-                  {getStepStatus(step.status)}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{step.name}</p>
-                </div>
-                {index < trainingSteps.length - 1 && (
-                  <div className="w-px h-6 bg-muted mx-4" />
-                )}
+      {/* Results */}
+      {results && (
+        <Card className="holographic-border">
+          <div className="holographic-content">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base text-neon-green">✓ Your AI Specs Ready</CardTitle>
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
               </div>
-            ))}
-          </CardContent>
-        </div>
-      </Card>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Tabs */}
+              <div className="flex flex-wrap gap-1">
+                {tabs.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                      activeTab === id
+                        ? 'bg-neon-purple text-midnight-blue'
+                        : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
-        <Button 
-          variant="neon" 
-          className="w-full h-12"
-          onClick={handleStartTraining}
-          disabled={isTraining || !modelName.trim()}
-        >
-          {isTraining ? (
-            <>
-              <Cpu className="w-4 h-4 mr-2 animate-pulse" />
-              Training...
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4 mr-2" />
-              Start Training
-            </>
-          )}
-        </Button>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline">
-            <Save className="w-4 h-4 mr-2" />
-            Save Config
-          </Button>
-          <Button variant="ghost">
-            <FileText className="w-4 h-4 mr-2" />
-            View Logs
-          </Button>
-        </div>
-      </div>
-
-      {/* Model Performance Preview */}
-      <Card className="border-neon-green/30 bg-neon-green/5">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-neon-green rounded-full flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-midnight-blue" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">Expected Performance</p>
-              <p className="text-xs text-muted-foreground">
-                Based on similar models: 92% accuracy • 1.2s avg response time
-              </p>
-            </div>
+              {/* Code Block */}
+              <div className="relative">
+                <pre className="bg-midnight-blue/50 border border-neon-purple/20 rounded-lg p-3 text-xs text-foreground overflow-x-auto whitespace-pre-wrap max-h-64 overflow-y-auto">
+                  {getTabContent()}
+                </pre>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-2 right-2 h-7 w-7 p-0"
+                  onClick={() => handleCopy(getTabContent(), activeTab)}
+                >
+                  {copiedTab === activeTab ? (
+                    <CheckCircle className="w-4 h-4 text-neon-green" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </CardContent>
           </div>
-        </CardContent>
-      </Card>
+        </Card>
+      )}
     </div>
   );
 }
