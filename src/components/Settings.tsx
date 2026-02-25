@@ -25,6 +25,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { clearGroqApiKey, getGroqApiKey, setGroqApiKey } from "@/lib/groq-key-storage";
 
 export function Settings() {
   const [darkMode, setDarkMode] = useState(true);
@@ -34,19 +35,21 @@ export function Settings() {
   const [volume, setVolume] = useState([75]);
 
   // API Key state
-  const [groqKey, setGroqKey] = useState(() => localStorage.getItem('arch1tech-groq-key') || '');
+  const [groqKey, setGroqKey] = useState(() => getGroqApiKey() || '');
   const [showKey, setShowKey] = useState(false);
-  const [keySaved, setKeySaved] = useState(() => !!localStorage.getItem('arch1tech-groq-key'));
+  const [keySaved, setKeySaved] = useState(() => !!getGroqApiKey());
 
   const { toast } = useToast();
 
   const handleSaveKey = () => {
     if (groqKey.trim()) {
-      localStorage.setItem('arch1tech-groq-key', groqKey.trim());
+      const normalizedKey = groqKey.trim();
+      setGroqApiKey(normalizedKey);
+      setGroqKey(normalizedKey);
       setKeySaved(true);
-      toast({ title: 'API Key Saved', description: 'Your Groq API key has been saved locally.' });
+      toast({ title: 'API Key Saved', description: 'Your Groq API key is saved for this browser session only.' });
     } else {
-      localStorage.removeItem('arch1tech-groq-key');
+      clearGroqApiKey();
       setKeySaved(false);
       toast({ title: 'API Key Removed', description: 'Groq API key cleared.' });
     }
@@ -54,7 +57,7 @@ export function Settings() {
 
   const handleClearKey = () => {
     setGroqKey('');
-    localStorage.removeItem('arch1tech-groq-key');
+    clearGroqApiKey();
     setKeySaved(false);
     toast({ title: 'API Key Cleared' });
   };
@@ -141,8 +144,8 @@ export function Settings() {
               )}
             </div>
             <div className="p-3 rounded-lg bg-muted/10 text-xs text-muted-foreground space-y-1">
-              <p className="font-medium text-foreground">Your key is stored locally</p>
-              <p>Keys are saved in your browser only and never sent to any server other than Groq.</p>
+              <p className="font-medium text-foreground">Your key is session-scoped</p>
+              <p>Keys are kept in-memory/session storage for this browser session and cleared from persistent storage.</p>
             </div>
           </CardContent>
         </div>
