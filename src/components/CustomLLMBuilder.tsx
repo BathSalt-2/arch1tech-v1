@@ -19,6 +19,7 @@ import {
   BookOpen
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getGroqApiKey } from "@/lib/groq-key-storage";
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
@@ -68,14 +69,14 @@ export function CustomLLMBuilder() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<GenerationResults | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('system-prompt');
-  const [apiKeySet] = useState(() => !!localStorage.getItem('arch1tech-groq-key'));
+  const [apiKeySet] = useState(() => !!getGroqApiKey());
   const [currentStep, setCurrentStep] = useState(0);
   const [copiedTab, setCopiedTab] = useState<TabType | null>(null);
   const { toast } = useToast();
 
   const handleGenerate = async () => {
     if (!description.trim()) return;
-    const apiKey = localStorage.getItem('arch1tech-groq-key');
+    const apiKey = getGroqApiKey();
     if (!apiKey) {
       toast({ title: 'API Key Required', description: 'Please add your Groq API key in Settings.', variant: 'destructive' });
       return;

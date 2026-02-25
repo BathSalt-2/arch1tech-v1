@@ -1,6 +1,5 @@
 // Groq API-powered AI Service
-// Stores API key in localStorage under 'arch1tech-groq-key'
-
+import { getGroqApiKey as readGroqApiKey, setGroqApiKey as writeGroqApiKey } from '@/lib/groq-key-storage';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
@@ -16,11 +15,11 @@ interface ChatMessage {
 
 class AIService {
   getGroqApiKey(): string | null {
-    return localStorage.getItem('arch1tech-groq-key');
+    return readGroqApiKey();
   }
 
   setGroqApiKey(key: string): void {
-    localStorage.setItem('arch1tech-groq-key', key);
+    writeGroqApiKey(key);
   }
 
   isConfigured(): boolean {

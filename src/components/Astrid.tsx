@@ -30,6 +30,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getGroqApiKey } from "@/lib/groq-key-storage";
 
 // Σ-Matrix State Interface
 interface SigmaMatrix {
@@ -202,7 +203,7 @@ export function Astrid() {
       timestamp: new Date()
     }));
 
-    const apiKey = localStorage.getItem('arch1tech-groq-key');
+    const apiKey = getGroqApiKey();
     if (!apiKey) {
       const noKeyMsg: Message = {
         id: Date.now() + 1,
