@@ -12,24 +12,15 @@ export function AIInitializer({ children }: AIInitializerProps) {
   const [message, setMessage] = useState('Initializing AI models...');
 
   useEffect(() => {
-    const initializeAI = async () => {
-      try {
-        setMessage('Loading AI models...');
-        await aiService.initialize();
-        setInitStatus('success');
-        setMessage('AI models ready');
-        // Auto-hide success message after 2 seconds
-        setTimeout(() => setInitStatus('success'), 2000);
-      } catch (error) {
-        console.error('AI initialization failed:', error);
-        setInitStatus('error');
-        setMessage('AI models failed to load, using fallbacks');
-        // Auto-hide error message after 3 seconds
-        setTimeout(() => setInitStatus('success'), 3000);
-      }
-    };
-
-    initializeAI();
+    setMessage('Checking AI configuration...');
+    if (aiService.isConfigured()) {
+      setInitStatus('success');
+      setMessage('AI models ready');
+    } else {
+      setInitStatus('error');
+      setMessage('No API key configured – using fallbacks');
+    }
+    setTimeout(() => setInitStatus('success'), 2000);
   }, []);
 
   if (initStatus === 'loading') {
