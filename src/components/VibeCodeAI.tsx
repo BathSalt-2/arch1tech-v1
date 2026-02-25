@@ -16,10 +16,10 @@ export function VibeCodeAI() {
     setIsRefining(true);
     try {
       const result = await aiService.refinePrompt(originalInput);
-      setRefinementResult(result);
+      setRefinementResult({ refined: result, agentType: 'General AI Agent', changes: [] });
       toast({
         title: "🎯 Prompt Refined",
-        description: `Agent type: ${result.agentType}`,
+        description: "Prompt has been refined by AI.",
       });
     } catch (error) {
       toast({

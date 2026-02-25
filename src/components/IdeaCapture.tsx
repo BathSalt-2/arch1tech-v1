@@ -19,10 +19,10 @@ export function IdeaCapture() {
     setIsProcessing(true);
     try {
       const result = await aiService.enhanceIdea(idea);
-      setEnhancedIdea(result);
+      setEnhancedIdea({ enhanced: result, complexity: 'N/A', estimatedTime: 'N/A', suggestions: [] });
       toast({
         title: "✨ Idea Enhanced",
-        description: `Complexity: ${result.complexity} • Estimated: ${result.estimatedTime}`,
+        description: "Your idea has been enhanced by AI.",
       });
     } catch (error) {
       toast({
